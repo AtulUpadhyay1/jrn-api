@@ -1,0 +1,22 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
+
+    // Auth API routes
+    Route::post('/login', 'AuthApiController@login');
+    Route::post('/register', 'AuthApiController@register');
+    Route::post('/forgot-password', 'AuthApiController@forgotPassword');
+
+    // Authenticated routes
+    Route::middleware('auth:sanctum')->group(function () {
+
+        Route::get('/profile', 'AuthApiController@profile');
+    });
+});
