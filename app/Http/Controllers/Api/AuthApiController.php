@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -26,11 +27,13 @@ class AuthApiController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Login successful',
-                    'token' => $token,
+                    'access_token' => $token,
                     'user' => [
-                        'name' => $user->name,
+                        'first_name' => $user->first_name,
+                        'last_name' => $user->last_name,
                         'email' => $user->email,
                     ],
+                    'user_detail' => $user->userDetail,
                 ], 200);
             }
 
@@ -51,17 +54,23 @@ class AuthApiController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
         try {
             $user = new User();
-            $user->name = $request->name;
+            $user->first_name = $request->first_name;
+            $user->last_name = $request->last_name;
             $user->email = $request->email;
             $user->password = bcrypt($request->password);
             $user->save();
+
+            $user_detail = new UserDetail();
+            $user_detail->user_id = $user->id;
+            $user_detail->save();
 
             Auth::login($user);
 
@@ -71,10 +80,12 @@ class AuthApiController extends Controller
                 'success' => true,
                 'message' => 'Registration successful',
                 'user' => [
-                    'name' => $user->name,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
                     'email' => $user->email,
                 ],
-                'token' => $token,
+                'user_detail' => $user_detail,
+                'access_token' => $token,
             ], 201);
 
         } catch (\Throwable $th) {
