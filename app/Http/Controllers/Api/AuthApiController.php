@@ -74,6 +74,8 @@ class AuthApiController extends Controller
 
             Auth::login($user);
 
+            $user_detail = Auth::user()->userDetail;
+
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
