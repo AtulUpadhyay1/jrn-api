@@ -33,5 +33,8 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Communications routes
         Route::apiResource('communications', 'CommunicationApiController');
+
+        // Projects routes
+        Route::apiResource('projects', 'ProjectApiController');
     });
 });
