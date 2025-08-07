@@ -21,6 +21,7 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         Route::get('/onboarding', 'OnboardingApiController@index');
         Route::post('/onboarding', 'OnboardingApiController@save');
 
-        Route::get('/profile', 'AuthApiController@profile');
+        Route::get('/profile', 'ProfileApiController@profile');
+        Route::post('/profile', 'ProfileApiController@update');
     });
 });

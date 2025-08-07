@@ -99,28 +99,6 @@ class AuthApiController extends Controller
         }
     }
 
-    public function profile(Request $request)
-    {
-        try {
-            $user = Auth::user();
-
-            return response()->json([
-                'success' => true,
-                'user' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ],
-            ], 200);
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching the profile',
-                'error' => $th->getMessage(),
-            ], 500);
-        }
-    }
-
     public function forgotPassword(Request $request)
     {
         $request->validate([
