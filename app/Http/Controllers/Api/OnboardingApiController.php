@@ -10,7 +10,7 @@ class OnboardingApiController extends Controller
     public function index(Request $request)
     {
         try {
-            $user = auth()->user()->userDetail;
+            $user = auth()->user()->load('userDetail');
             return response()->json([
                 'success' => true,
                 'message' => 'Onboarding data retrieved successfully',
@@ -28,8 +28,14 @@ class OnboardingApiController extends Controller
     public function save(Request $request)
     {
         try {
-            $user_detail = auth()->user()->userDetail;
+            $user = auth()->user();
+            $user->first_name = $request->first_name ?? $user->first_name;
+            $user->last_name = $request->last_name ?? $user->last_name;
+            $user->email = $request->email ?? $user->email;
+            $user->phone = $request->phone ?? $user->phone;
+            $user->save();
 
+            $user_detail = auth()->user()->userDetail;
             $user_detail->dob = $request->dob ?? $user_detail->dob;
             $user_detail->gender = $request->gender ?? $user_detail->gender;
             $user_detail->address = $request->address ?? $user_detail->address;
@@ -59,11 +65,14 @@ class OnboardingApiController extends Controller
             $user_detail->youtube = $request->youtube ?? $user_detail->youtube;
             $user_detail->behance = $request->behance ?? $user_detail->behance;
             $user_detail->dribbble = $request->dribbble ?? $user_detail->dribbble;
-            if($request->step > $user_detail->step) {
+            if($request->step >= $user_detail->step) {
                 $user_detail->status = 'in_progress';
             }
-            if($request->step > $user_detail->step) {
+            if($request->step >= $user_detail->step) {
                 $user_detail->step = $request->step ?? 1;
+            }
+            if($request->step == 8) {
+                $user_detail->status = 'uploaded';
             }
             $user_detail->save();
 
