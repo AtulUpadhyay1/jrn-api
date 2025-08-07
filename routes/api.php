@@ -27,5 +27,8 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Education routes
         Route::apiResource('education', 'EducationApiController');
+
+        // Skills routes
+        Route::apiResource('skills', 'SkillsApiController');
     });
 });
