@@ -36,5 +36,8 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Projects routes
         Route::apiResource('projects', 'ProjectApiController');
+
+        // Experience routes
+        Route::apiResource('experience', 'ExperienceApiController');
     });
 });
