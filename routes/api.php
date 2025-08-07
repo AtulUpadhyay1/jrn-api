@@ -10,9 +10,9 @@ Route::get('/user', function (Request $request) {
 Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
     // Auth API routes
-    Route::post('/login', 'AuthApiController@login');
-    Route::post('/register', 'AuthApiController@register');
-    Route::post('/forgot-password', 'AuthApiController@forgotPassword');
+    Route::post('login', 'AuthApiController@login');
+    Route::post('register', 'AuthApiController@register');
+    Route::post('forgot-password', 'AuthApiController@forgotPassword');
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -21,7 +21,11 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         Route::get('/onboarding', 'OnboardingApiController@index');
         Route::post('/onboarding', 'OnboardingApiController@save');
 
-        Route::get('/profile', 'ProfileApiController@profile');
-        Route::post('/profile', 'ProfileApiController@update');
+        // Profile routes
+        Route::get('profile', 'ProfileApiController@profile');
+        Route::post('profile', 'ProfileApiController@update');
+
+        // Education routes
+        Route::apiResource('education', 'EducationApiController');
     });
 });
