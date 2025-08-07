@@ -30,5 +30,8 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Skills routes
         Route::apiResource('skills', 'SkillsApiController');
+
+        // Communications routes
+        Route::apiResource('communications', 'CommunicationApiController');
     });
 });
