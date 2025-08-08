@@ -39,5 +39,8 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Experience routes
         Route::apiResource('experience', 'ExperienceApiController');
+
+        // Ats Scores routes
+        Route::apiResource('ats-scores', 'AtsScoresApiController');
     });
 });
