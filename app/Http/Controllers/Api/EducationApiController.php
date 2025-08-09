@@ -38,8 +38,8 @@ class EducationApiController extends Controller
             'degree' => 'required|string|max:255',
             'specialization' => 'required|string|max:255',
             'institution' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'required',
+            'end_date' => 'nullable|after_or_equal:start_date',
             'grade' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
         ]);
