@@ -47,3 +47,22 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         Route::apiResource('curriculum', 'CurriculumApiController');
     });
 });
+
+// Admin Route
+Route::group(['prefix' => 'admin', 'namespace' => 'App\Http\Controllers\Api\Admin'], function () {
+    Route::post('login', 'AuthApiController@login');
+
+    // Authenticated routes
+    Route::middleware('auth:sanctum')->group(function () {
+
+        // Profile routes
+        Route::get('profile', 'ProfileApiController@profile');
+
+        // Role Play Category routes
+        Route::apiResource('role-play-categories', 'RolePlayCategoryApiController');
+
+        // Role Play Use Case routes
+        Route::apiResource('role-play-use-cases', 'RolePlayUseCaseApiController');
+
+    });
+});

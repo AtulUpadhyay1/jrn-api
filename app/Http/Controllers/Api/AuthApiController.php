@@ -22,12 +22,23 @@ class AuthApiController extends Controller
 
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
+
+                // Check if user is regular user
+                if ($user->type !== 'user') {
+                    Auth::logout();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Access denied. User access required.',
+                    ], 403);
+                }
+
                 $token = $user->createToken('auth_token')->plainTextToken;
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Login successful',
                     'access_token' => $token,
+                    'type'    => $user->type,
                     'user' => [
                         'first_name' => $user->first_name,
                         'last_name' => $user->last_name,
