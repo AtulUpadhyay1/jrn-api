@@ -45,6 +45,9 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Curriculum routes
         Route::apiResource('curriculum', 'CurriculumApiController');
+
+        // Cover Letter routes
+        Route::apiResource('cover-letters', 'CoverLetterController');
     });
 });
 
