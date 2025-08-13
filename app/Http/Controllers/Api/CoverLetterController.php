@@ -36,14 +36,38 @@ class CoverLetterController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'company' => 'required|string|max:255',
+            'description' => 'required',
+            'role' => 'required|string|max:255',
+            'skills' => 'required|array',
+            'skills.*' => 'string|max:255',
+            'experience_years' => 'required|integer|min:0',
+            'max_words' => 'required|integer|min:1',
+            'tone' => 'required|string|max:255',
+            'language' => 'required|string|max:255',
+            'style' => 'required|string|max:255',
+            'structure' => 'required|array'
         ]);
 
         try {
             $data = new CoverLetter();
             $data->user_id = auth()->id();
             $data->name = $request->name;
+            $data->company = $request->company;
+            $data->role = $request->role;
             $data->description = $request->description;
+            $data->skills = $request->skills;
+            $data->experience_years = $request->experience_years;
+            $data->temperature = 0.6;
+            $data->max_words = $request->max_words;
+            $data->tone = $request->tone;
+            $data->language = $request->language;
+            $data->style = $request->style;
+            $data->structure = $request->structure;
+            $data->use_bullets = $request->use_bullets ?? true;
+            $data->closing = "Sincerely";
+            $data->sign_off_name = auth()->user()->first_name . ' ' . auth()->user()->last_name;
+            $data->model = "gpt-4o-mini";
             $data->save();
 
             return response()->json([
@@ -75,7 +99,17 @@ class CoverLetterController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'company' => 'required|string|max:255',
+            'description' => 'required',
+            'role' => 'required|string|max:255',
+            'skills' => 'required|array',
+            'skills.*' => 'string|max:255',
+            'experience_years' => 'required|integer|min:0',
+            'max_words' => 'required|integer|min:1',
+            'tone' => 'required|string|max:255',
+            'language' => 'required|string|max:255',
+            'style' => 'required|string|max:255',
+            'structure' => 'required|array'
         ]);
 
         try {
@@ -87,7 +121,21 @@ class CoverLetterController extends Controller
                 ], 404);
             }
             $data->name = $request->name;
+            $data->company = $request->company;
+            $data->role = $request->role;
             $data->description = $request->description;
+            $data->skills = $request->skills;
+            $data->experience_years = $request->experience_years;
+            $data->temperature = 0.6;
+            $data->max_words = $request->max_words;
+            $data->tone = $request->tone;
+            $data->language = $request->language;
+            $data->style = $request->style;
+            $data->structure = $request->structure;
+            $data->use_bullets = $request->use_bullets ?? true;
+            $data->closing = "Sincerely";
+            $data->sign_off_name = auth()->user()->first_name . ' ' . auth()->user()->last_name;
+            $data->model = "gpt-4o-mini";
             $data->save();
 
             return response()->json([

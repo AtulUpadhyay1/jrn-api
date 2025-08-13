@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CoverLetter extends Model
 {
     use SoftDeletes;
+
+    protected $casts = [
+        'skills' => 'array',
+        'structure' => 'array',
+    ];
+
 }
