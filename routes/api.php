@@ -47,10 +47,13 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         Route::apiResource('curriculum', 'CurriculumApiController');
 
         // Cover Letter routes
-        Route::apiResource('cover-letters', 'CoverLetterController');
+        Route::apiResource('cover-letters', 'CoverLetterApiController');
 
         // Resume Parsing routes
         Route::post('resume-parse', 'ResumeParseApiController@parse');
+
+        // Cover Letter Generation routes
+        Route::post('cover-letters-generate', 'CoverLetterApiController@generate');
     });
 });
 

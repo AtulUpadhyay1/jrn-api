@@ -38,6 +38,9 @@ return [
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
         'model'   => env('OPENAI_MODEL', 'gpt-4o-mini-2024-07-18'),
+        'organization' => env('OPENAI_ORG'),
+        'project'      => env('OPENAI_PROJECT'),
+        'base_uri'     => env('OPENAI_BASE_URI'),
     ],
 
 ];

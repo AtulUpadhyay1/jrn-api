@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Models\CoverLetter;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\CoverLetterService;
 
-class CoverLetterController extends Controller
+class CoverLetterApiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -179,4 +180,34 @@ class CoverLetterController extends Controller
             ], 500);
         }
     }
+
+    public function __construct(private CoverLetterService $service) {}
+
+    public function generate(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:cover_letters,id,user_id,' . auth()->id(),
+        ]);
+
+        $cover_letter = CoverLetter::where('user_id', auth()->id())->where('id', $request->id)->first();
+
+        if (!$cover_letter) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cover letter not found',
+            ], 404);
+        }
+
+        $data = $this->service->generate($cover_letter->toArray());
+
+        $cover_letter->generated_response = json_encode($data);
+        $cover_letter->save();
+
+        return response()->json([
+            'status'  => 'ok',
+            'letter'  => $data['content'],
+            'usage'   => $data['usage'],
+        ]);
+    }
+
 }
