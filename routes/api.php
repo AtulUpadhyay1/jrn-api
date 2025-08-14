@@ -48,6 +48,9 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Cover Letter routes
         Route::apiResource('cover-letters', 'CoverLetterController');
+
+        // Resume Parsing routes
+        Route::post('resume-parse', 'ResumeParseApiController@parse');
     });
 });
 
