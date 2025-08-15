@@ -12,6 +12,9 @@ class ProfileApiController extends Controller
     {
         try {
             $user = Auth::user()->load('userDetail');
+            if ($user->userDetail && $user->userDetail->resume) {
+                $user->userDetail->resume = asset('storage/' . $user->userDetail->resume);
+            }
 
             return response()->json([
                 'success' => true,
@@ -45,6 +48,10 @@ class ProfileApiController extends Controller
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             $user->save();
+
+            if ($user->userDetail && $user->userDetail->resume) {
+                $user->userDetail->resume = asset('storage/' . $user->userDetail->resume);
+            }
 
             return response()->json([
                 'success' => true,

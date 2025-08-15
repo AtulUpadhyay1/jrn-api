@@ -21,7 +21,10 @@ class ResumeParseApiController extends Controller
                 jobDescription: $data['job_description'] ?? null
             );
 
-            // Return only JSON suitable for your saving logic
+            $user = auth()->user();
+            $user->userDetail->resume_parsed = $result;
+            $user->userDetail->save();
+
             return response()->json($result, 200, [
                 'Content-Type' => 'application/json; charset=utf-8'
             ]);
