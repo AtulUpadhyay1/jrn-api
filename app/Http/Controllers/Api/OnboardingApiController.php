@@ -11,9 +11,12 @@ class OnboardingApiController extends Controller
     {
         try {
             $user = auth()->user()->load('userDetail');
+            if ($user->userDetail && $user->userDetail->resume) {
+                $user->userDetail->resume = asset('storage/' . $user->userDetail->resume);
+            }
             return response()->json([
                 'success' => true,
-                'message' => 'Onboarding data retrieved successfully',
+                'message' => 'Onboarding data retrieved successfully test',
                 'data' => $user,
             ], 200);
         } catch (\Throwable $th) {
@@ -27,6 +30,9 @@ class OnboardingApiController extends Controller
 
     public function save(Request $request)
     {
+        $request->validate([
+            'resume' => 'nullable|file|mimes:pdf,doc,docx',
+        ]);
         try {
             $user = auth()->user();
             $user->first_name = $request->first_name ?? $user->first_name;
@@ -54,7 +60,12 @@ class OnboardingApiController extends Controller
             $user_detail->motivates_professionally = $request->motivates_professionally ?? $user_detail->motivates_professionally;
             $user_detail->areas_of_interest = $request->areas_of_interest ?? $user_detail->areas_of_interest;
             $user_detail->preferred_learning_methods = $request->preferred_learning_methods ?? $user_detail->preferred_learning_methods;
-            $user_detail->resume = $request->resume ?? $user_detail->resume;
+            if($request->hasFile('resume')) {
+                $extension = $request->file('resume')->getClientOriginalExtension();
+                $name = time() . '.' . $extension;
+                $user_detail->resume = $request->file('resume')->storeAs('resumes', $name, 'public');
+
+            }
             $user_detail->additional_notes = $request->additional_notes ?? $user_detail->additional_notes;
             $user_detail->video_introduction = $request->video_introduction ?? $user_detail->video_introduction;
             $user_detail->linkedin = $request->linkedin ?? $user_detail->linkedin;
