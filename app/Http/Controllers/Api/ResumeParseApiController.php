@@ -66,7 +66,8 @@ class ResumeParseApiController extends Controller
             'educations'     => $educations,
             'experiences'    => $experiences,
             'projects'       => $projects,
-            'skills'        => $skills,
+            'skills'         => $skills,
+            'user_info'      => $user
         ]);
     }
 }
