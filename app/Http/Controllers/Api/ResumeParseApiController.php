@@ -71,17 +71,26 @@ class ResumeParseApiController extends Controller
         ];
 
         try {
-            // ✅ OpenAI client
-            $client = new \OpenAI\Client(env('OPENAI_API_KEY'));
+            // ✅ Proper OpenAI client
+            $client = \OpenAI::client(env('OPENAI_API_KEY'));
 
-            // ✅ Define analysis prompt
-            $prompt = "Analyze the following resume data and return structured JSON with:
-            - profile (name, position, industry, location)
-            - resume_analysis: pros (list), cons (list), score (overall, skills_match, experience_relevance, education_strength, presentation), quality (Excellent/Good/Average/Poor), recommendations (list).
-            Score must be on 0-100 scale. Return only valid JSON.\n\n"
-            . json_encode($user_report);
+            // ✅ Strict JSON prompt
+            $prompt = "Analyze the following resume data.
+            Return only valid JSON in this structure:
+            {
+            \"profile\": {\"name\": \"string\", \"position\": \"string\", \"industry\": \"string\", \"location\": \"string\"},
+            \"resume_analysis\": {
+                \"pros\": [\"string\"],
+                \"cons\": [\"string\"],
+                \"score\": {\"overall\": number, \"skills_match\": number, \"experience_relevance\": number, \"education_strength\": number, \"presentation\": number},
+                \"quality\": \"Excellent|Good|Average|Poor\",
+                \"recommendations\": [\"string\"]
+            }
+            }
+            Do not include explanations or extra text.
 
-            // ✅ Call OpenAI
+            Resume data: " . json_encode($user_report);
+
             $response = $client->chat()->create([
                 'model' => 'gpt-4o-mini',
                 'messages' => [
@@ -91,14 +100,19 @@ class ResumeParseApiController extends Controller
                 'temperature' => 0.2,
             ]);
 
-            // ✅ Parse OpenAI response
-            $content = $response->choices[0]->message->content;
+            $content = trim($response->choices[0]->message->content);
+
+            // ✅ Ensure only JSON is returned
+            $content = preg_replace('/^[^{\[]+|[^}\]]+$/', '', $content);
+
             $summary = json_decode($content, true);
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                // fallback if parsing fails
-                $summary = ['raw_output' => $content];
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($summary)) {
+                throw new \Exception("Invalid JSON returned from OpenAI");
             }
+
+            $user->userDetail->resume_report = $summary;
+            $user->userDetail->save();
 
             return response()->json([
                 'status'  => 'success',

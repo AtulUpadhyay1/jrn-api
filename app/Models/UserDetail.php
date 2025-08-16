@@ -8,5 +8,6 @@ class UserDetail extends Model
 {
     protected $casts = [
         'resume_parsed' => 'array',
+        'resume_report' => 'array',
     ];
 }
