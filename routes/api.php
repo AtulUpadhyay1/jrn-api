@@ -51,6 +51,7 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Resume Parsing routes
         Route::post('resume-parse', 'ResumeParseApiController@parse');
+        Route::post('resume-generate-report', 'ResumeParseApiController@generateReport');
 
         // Cover Letter Generation routes
         Route::post('cover-letters-generate', 'CoverLetterApiController@generate');

@@ -2,7 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Skill;
+use App\Models\Project;
+use App\Models\Education;
+use App\Models\Curriculum;
+use App\Models\Experience;
 use Illuminate\Http\Request;
+use App\Models\Communication;
 use App\Http\Controllers\Controller;
 use App\Services\ResumeParseService;
 
@@ -38,4 +44,25 @@ class ResumeParseApiController extends Controller
             ], 422);
         }
     }
+
+    public function generateReport(Request $request)
+    {
+        $communications = Communication::where('user_id', auth()->id())->latest()->get();
+        $curriculums = Curriculum::where('user_id', auth()->id())->latest()->get();
+        $educations = Education::where('user_id', auth()->id())->latest()->get();
+        $experiences = Experience::where('user_id', auth()->id())->latest()->get();
+        $projects = Project::where('user_id', auth()->id())->latest()->get();
+        $skills = Skill::where('user_id', auth()->id())->latest()->get();
+
+        return response()->json([
+            'status' => 'success',
+            'communications' => $communications,
+            'curriculums'    => $curriculums,
+            'educations'     => $educations,
+            'experiences'    => $experiences,
+            'projects'       => $projects,
+            'skills'        => $skills,
+        ]);
+    }
 }
+
