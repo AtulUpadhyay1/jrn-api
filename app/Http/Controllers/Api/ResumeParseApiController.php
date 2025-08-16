@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\Communication;
 use App\Http\Controllers\Controller;
 use App\Services\ResumeParseService;
+use Illuminate\Support\Facades\Auth;
 
 class ResumeParseApiController extends Controller
 {
@@ -47,6 +48,10 @@ class ResumeParseApiController extends Controller
 
     public function generateReport(Request $request)
     {
+        $user = Auth::user()->load('userDetail');
+        if ($user->userDetail && $user->userDetail->resume) {
+            $user->userDetail->resume = asset('storage/' . $user->userDetail->resume);
+        }
         $communications = Communication::where('user_id', auth()->id())->latest()->get();
         $curriculums = Curriculum::where('user_id', auth()->id())->latest()->get();
         $educations = Education::where('user_id', auth()->id())->latest()->get();
