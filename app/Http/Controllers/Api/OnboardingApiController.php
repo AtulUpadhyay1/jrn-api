@@ -82,7 +82,7 @@ class OnboardingApiController extends Controller
             if($request->step >= $user_detail->step) {
                 $user_detail->step = $request->step ?? 1;
             }
-            if($request->step == 8) {
+            if($request->step == 7) {
                 $user_detail->status = 'uploaded';
             }
             $user_detail->save();
