@@ -55,6 +55,12 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Cover Letter Generation routes
         Route::post('cover-letters-generate', 'CoverLetterApiController@generate');
+
+        // Job Engine routes
+        Route::apiResource('job-engine', 'JobEngineApiController');
+
+        // LinkedIn Profile AI routes
+        Route::apiResource('linkedin-profile-ai', 'LinkedInProfileAiApiController');
     });
 });
 
