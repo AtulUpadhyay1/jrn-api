@@ -75,7 +75,27 @@ class JobEngineApiController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $data = JobEngine::where('user_id', auth()->id())->findOrFail($id);
+            if (! $data) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Job Engine entry not found',
+                ], 404);
+            }
+            $data->status = 'active';
+            $data->save();
+            return response()->json([
+                'success' => true,
+                'message' => 'Job Engine entry status update successful.',
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while retrieving Job Engine entry',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**

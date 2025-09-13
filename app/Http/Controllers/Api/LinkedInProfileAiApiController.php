@@ -65,7 +65,27 @@ class LinkedInProfileAiApiController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $data = LinkedInProfileAi::where('user_id', auth()->id())->findOrFail($id);
+            if (! $data) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'LinkedIn Profile AI not found',
+                ], 404);
+            }
+            $data->status = 'active';
+            $data->save();
+            return response()->json([
+                'success' => true,
+                'message' => 'LinkedIn Profile AI status update successful.',
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while retrieving LinkedIn Profile AI',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**

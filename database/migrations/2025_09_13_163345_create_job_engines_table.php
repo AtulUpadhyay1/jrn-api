@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('work_type')->nullable();
             $table->string('published_at')->nullable();
             $table->string('jobs_count')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->boolean('api_status')->default(false);
             $table->softDeletes();
             $table->timestamps();
