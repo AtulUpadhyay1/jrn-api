@@ -67,7 +67,7 @@ class JobEngineApiController extends Controller
 
             // Save search result in jobs column if successful
             if ($searchResult['success'] && isset($searchResult['data'])) {
-                $data->jobs = $searchResult['data'];
+                $data->snapshot_id = $searchResult['data'];
                 $data->save();
             }
 
@@ -101,18 +101,59 @@ class JobEngineApiController extends Controller
             }
 
             try {
-                $webhookUrl = 'https://n8n.srv647881.hstgr.cloud/webhook/174f7bb1-7c76-4c85-a85a-a755ba973458';
-                $queryParams = [
-                    'contractType' => $data->contract_type,
-                    'experienceLevel' => $data->experience_level,
-                    'location' => $data->location,
-                    'title' => $data->title,
-                    'workType' => $data->work_type,
-                    'publishedAt' => $data->published_at,
-                    'rows' => '30'
-                ];
 
-                Http::get($webhookUrl, $queryParams);
+                if($data->snapshot_id && $data->api_status != 1) {
+                    $snapshot_id = $data->snapshot_id['snapshot_id'];
+                    try {
+                        $snapshotUrl = "https://api.brightdata.com/datasets/v3/snapshot/{$snapshot_id}?format=json";
+                        $headers = [
+                            'Authorization: Bearer 9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b'
+                        ];
+
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $snapshotUrl);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+                        $response = curl_exec($ch);
+                        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        curl_close($ch);
+
+                        if ($response && $httpCode === 200) {
+                            $jobsData = json_decode($response, true);
+                            $data->jobs = $jobsData;
+
+                            \Log::info('Jobs snapshot retrieved successfully', [
+                                'user_id' => $data->user_id,
+                                'snapshot_id' => $snapshot_id,
+                                'data_size' => strlen($response)
+                            ]);
+
+                        } else {
+                            \Log::error('Failed to retrieve Jobs snapshot', [
+                                'user_id' => $data->user_id,
+                                'snapshot_id' => $snapshot_id,
+                                'http_code' => $httpCode,
+                                'response' => $response
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('Exception while retrieving Jobs snapshot', [
+                            'user_id' => $data->user_id,
+                            'snapshot_id' => $snapshot_id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                    $data->api_status = 1;
+                    $data->save();
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No snapshot data available for the Jobs entry or already processed.',
+                    ], 404);
+                }
+
             } catch (\Exception $e) {
                 \Log::warning('Webhook call failed: ' . $e->getMessage());
                 return response()->json([

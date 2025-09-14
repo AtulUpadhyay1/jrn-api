@@ -10,6 +10,7 @@ class JobEngine extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'jobs' => 'array'
+        'snapshot_id'   => 'array',
+        'jobs'          => 'array'
     ];
 }
