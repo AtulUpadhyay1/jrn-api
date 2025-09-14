@@ -110,7 +110,7 @@ class LinkedInProfileAiApiController extends Controller
                 // Log successful LinkedIn profile processing
                 \Log::info('LinkedIn profile processed successfully', [
                     'user_id' => $user->id,
-                    'linkedin_url' => $request->linkedin,
+                    'linkedin_url' => $user_detail->linkedin,
                     'response' => $response
                 ]);
                 $linkedInProfileAi = LinkedInProfileAi::where('user_id', $user->id)->first();
