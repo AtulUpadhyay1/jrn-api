@@ -23,7 +23,7 @@ class LinkedInProfileAiApiController extends Controller
     public function index(Request $request)
     {
         try {
-            $list = LinkedInProfileAi::where('user_id', auth()->id())->latest()->get();
+            $list = LinkedInProfileAi::where('user_id', auth()->id())->latest()->first();
             return response()->json([
                 'success' => true,
                 'message' => 'LinkedIn Profile AI data retrieved successfully',
