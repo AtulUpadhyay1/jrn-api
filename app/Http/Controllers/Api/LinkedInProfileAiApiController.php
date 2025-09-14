@@ -121,6 +121,11 @@ class LinkedInProfileAiApiController extends Controller
                 $linkedInProfileAi->snapshot_id = $response;
                 $linkedInProfileAi->save();
 
+                return response()->json([
+                    'success' => true,
+                    'message' => 'LinkedIn Profile AI created successfully.',
+                ], 200);
+
             } else {
                 // Log error but don't fail the main request
                 \Log::error('Failed to process LinkedIn profile', [
@@ -129,6 +134,12 @@ class LinkedInProfileAiApiController extends Controller
                     'http_code' => $httpCode,
                     'response' => $response
                 ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to trigger LinkedIn profile processing.',
+                    'error' => $e->getMessage(),
+                ], 500);
             }
         } catch (\Exception $e) {
             // Log error but don't fail the main request
@@ -137,13 +148,12 @@ class LinkedInProfileAiApiController extends Controller
                 'linkedin_url' => $user_detail->linkedin,
                 'error' => $e->getMessage()
             ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing LinkedIn profile.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-        $data->status = 'active';
-        $data->save();
-        return response()->json([
-            'success' => true,
-            'message' => 'LinkedIn Profile AI status update successful.',
-        ], 200);
     }
 
     /**
