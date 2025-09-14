@@ -121,13 +121,11 @@ class OnboardingApiController extends Controller
                             'linkedin_url' => $request->linkedin,
                             'response' => $response
                         ]);
-                        $responseData = json_decode($response, true);
-                        if (isset($responseData['snapshot_id'])) {
-                            $linkedInProfileAi = new LinkedInProfileAi();
-                            $linkedInProfileAi->user_id = $user->id;
-                            $linkedInProfileAi->snapshot_id = $responseData['snapshot_id'];
-                            $linkedInProfileAi->save();
-                        }
+                        $linkedInProfileAi = new LinkedInProfileAi();
+                        $linkedInProfileAi->user_id = $user->id;
+                        $linkedInProfileAi->snapshot_id = $response;
+                        $linkedInProfileAi->save();
+
                     } else {
                         // Log error but don't fail the main request
                         \Log::error('Failed to process LinkedIn profile', [

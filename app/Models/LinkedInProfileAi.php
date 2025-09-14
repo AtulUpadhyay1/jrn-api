@@ -12,5 +12,6 @@ class LinkedInProfileAi extends Model
     protected $cast = [
         'profile' => 'array',
         'ai_report' => 'array',
+        'snapshot_id' => 'array',
     ];
 }
