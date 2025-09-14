@@ -75,26 +75,67 @@ class LinkedInProfileAiApiController extends Controller
     public function show(string $id)
     {
         try {
-            $data = LinkedInProfileAi::where('user_id', auth()->id())->findOrFail($id);
-            if (! $data) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'LinkedIn Profile AI not found',
-                ], 404);
+            $brightDataUrl = 'https://api.brightdata.com/datasets/v3/trigger?dataset_id=gd_l1viktl72bvl7bjuj0&include_errors=true';
+            $headers = [
+                'Authorization: Bearer 9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b',
+                'Content-Type: application/json'
+            ];
+            $data = [
+                [
+                    'url' => $user_detail->linkedin
+                ]
+            ];
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $brightDataUrl);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($response && $httpCode === 200) {
+                // Log successful LinkedIn profile processing
+                \Log::info('LinkedIn profile processed successfully', [
+                    'user_id' => $user->id,
+                    'linkedin_url' => $request->linkedin,
+                    'response' => $response
+                ]);
+                $linkedInProfileAi = LinkedInProfileAi::where('user_id', $user->id)->first();
+                if (!$linkedInProfileAi) {
+                    $linkedInProfileAi = new LinkedInProfileAi();
+                }
+                $linkedInProfileAi->user_id = $user->id;
+                $linkedInProfileAi->snapshot_id = $response;
+                $linkedInProfileAi->save();
+
+            } else {
+                // Log error but don't fail the main request
+                \Log::error('Failed to process LinkedIn profile', [
+                    'user_id' => $user->id,
+                    'linkedin_url' => $request->linkedin,
+                    'http_code' => $httpCode,
+                    'response' => $response
+                ]);
             }
-            $data->status = 'active';
-            $data->save();
-            return response()->json([
-                'success' => true,
-                'message' => 'LinkedIn Profile AI status update successful.',
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while retrieving LinkedIn Profile AI',
-                'error' => $th->getMessage(),
-            ], 500);
+        } catch (\Exception $e) {
+            // Log error but don't fail the main request
+            \Log::error('Exception while processing LinkedIn profile', [
+                'user_id' => $user->id,
+                'linkedin_url' => $request->linkedin,
+                'error' => $e->getMessage()
+            ]);
         }
+        $data->status = 'active';
+        $data->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'LinkedIn Profile AI status update successful.',
+        ], 200);
     }
 
     /**
