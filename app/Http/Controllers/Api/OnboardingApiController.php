@@ -121,7 +121,10 @@ class OnboardingApiController extends Controller
                             'linkedin_url' => $request->linkedin,
                             'response' => $response
                         ]);
-                        $linkedInProfileAi = new LinkedInProfileAi();
+                        $linkedInProfileAi = LinkedInProfileAi::where('user_id', $user->id)->first();
+                        if (!$linkedInProfileAi) {
+                            $linkedInProfileAi = new LinkedInProfileAi();
+                        }
                         $linkedInProfileAi->user_id = $user->id;
                         $linkedInProfileAi->snapshot_id = $response;
                         $linkedInProfileAi->save();

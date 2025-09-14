@@ -151,4 +151,76 @@ class LinkedInProfileAiApiController extends Controller
             ], 500);
         }
     }
+
+    public function snapshot(Request $request)
+    {
+        $user = auth()->user();
+        $linkedInProfileAi = LinkedInProfileAi::where('user_id', $user->id)->first();
+        if (!$linkedInProfileAi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No LinkedIn profile found for the user',
+            ], 404);
+        }
+        if(!$linkedInProfileAi->profile) {
+            if($linkedInProfileAi->snapshot_id) {
+                $snapshot_id = $linkedInProfileAi->snapshot_id['snapshot_id'];
+
+                try {
+                    $snapshotUrl = "https://api.brightdata.com/datasets/v3/snapshot/{$snapshot_id}?format=json";
+                    $headers = [
+                        'Authorization: Bearer 9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b'
+                    ];
+
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $snapshotUrl);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+                    $response = curl_exec($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
+
+                    if ($response && $httpCode === 200) {
+                        $profileData = json_decode($response, true);
+                        $linkedInProfileAi->profile = $response;
+
+                        \Log::info('LinkedIn snapshot retrieved successfully', [
+                            'user_id' => $linkedInProfileAi->user_id,
+                            'snapshot_id' => $snapshot_id,
+                            'data_size' => strlen($response)
+                        ]);
+                        
+                    } else {
+                        \Log::error('Failed to retrieve LinkedIn snapshot', [
+                            'user_id' => $linkedInProfileAi->user_id,
+                            'snapshot_id' => $snapshot_id,
+                            'http_code' => $httpCode,
+                            'response' => $response
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Exception while retrieving LinkedIn snapshot', [
+                        'user_id' => $linkedInProfileAi->user_id,
+                        'snapshot_id' => $snapshot_id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+
+                $linkedInProfileAi->save();
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No snapshot data available for the LinkedIn profile',
+                ], 404);
+            }
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'LinkedIn profile snapshot retrieved successfully',
+            'data' => $linkedInProfileAi->profile,
+        ], 200);
+
+    }
 }
