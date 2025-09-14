@@ -69,6 +69,7 @@ class OnboardingApiController extends Controller
             }
             $user_detail->additional_notes = $request->additional_notes ?? $user_detail->additional_notes;
             $user_detail->video_introduction = $request->video_introduction ?? $user_detail->video_introduction;
+            $old_linkedin_url = $user_detail->linkedin;
             $user_detail->linkedin = $request->linkedin ?? $user_detail->linkedin;
             $user_detail->twitter = $request->twitter ?? $user_detail->twitter;
             $user_detail->github = $request->github ?? $user_detail->github;
@@ -88,7 +89,7 @@ class OnboardingApiController extends Controller
             }
             $user_detail->save();
 
-            if($user_detail->linkedin != $request->linkedin) {
+            if($old_linkedin_url != $request->linkedin) {
                 try {
                     $brightDataUrl = 'https://api.brightdata.com/datasets/v3/trigger?dataset_id=gd_l1viktl72bvl7bjuj0&include_errors=true';
                     $headers = [
