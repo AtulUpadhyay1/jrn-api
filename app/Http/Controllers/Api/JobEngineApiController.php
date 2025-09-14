@@ -62,14 +62,14 @@ class JobEngineApiController extends Controller
 
             $data->save();
 
-            // Trigger job search after saving
-            $searchResult = $this->triggerJobSearch($data);
+            // // Trigger job search after saving
+            // $searchResult = $this->triggerJobSearch($data);
 
-            // Save search result in jobs column if successful
-            if ($searchResult['success'] && isset($searchResult['data'])) {
-                $data->snapshot_id = $searchResult['data'];
-                $data->save();
-            }
+            // // Save search result in jobs column if successful
+            // if ($searchResult['success'] && isset($searchResult['data'])) {
+            //     $data->snapshot_id = $searchResult['data'];
+            //     $data->save();
+            // }
 
             return response()->json([
                 'success' => true,
@@ -102,56 +102,27 @@ class JobEngineApiController extends Controller
 
             try {
 
-                if($data->snapshot_id && $data->api_status != 1) {
-                    $snapshot_id = $data->snapshot_id['snapshot_id'];
-                    try {
-                        $snapshotUrl = "https://api.brightdata.com/datasets/v3/snapshot/{$snapshot_id}?format=json";
-                        $headers = [
-                            'Authorization: Bearer 9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b'
-                        ];
+                if($data->api_status != 1){
+                    // Make API call to fetch job data
+                    $response = Http::withHeaders([
+                        'accept' => 'application/json'
+                    ])->get('https://anjanette-administrable-kenyetta.ngrok-free.app/jobs', [
+                        'search_term' => $data->keyword,
+                        'location' => $data->location,
+                        'results_wanted' => 20,
+                        'hours_old' => 72,
+                        'is_remote' => $data->remote === 'remote' ? 'true' : 'false',
+                        'fetch_description' => 'true',
+                        'fetch_skills' => 'false'
+                    ]);
 
-                        $ch = curl_init();
-                        curl_setopt($ch, CURLOPT_URL, $snapshotUrl);
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-                        $response = curl_exec($ch);
-                        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                        curl_close($ch);
-
-                        if ($response && $httpCode === 200) {
-                            $jobsData = json_decode($response, true);
-                            $data->jobs = $jobsData;
-
-                            \Log::info('Jobs snapshot retrieved successfully', [
-                                'user_id' => $data->user_id,
-                                'snapshot_id' => $snapshot_id,
-                                'data_size' => strlen($response)
-                            ]);
-
-                        } else {
-                            \Log::error('Failed to retrieve Jobs snapshot', [
-                                'user_id' => $data->user_id,
-                                'snapshot_id' => $snapshot_id,
-                                'http_code' => $httpCode,
-                                'response' => $response
-                            ]);
-                        }
-                    } catch (\Exception $e) {
-                        \Log::error('Exception while retrieving Jobs snapshot', [
-                            'user_id' => $data->user_id,
-                            'snapshot_id' => $snapshot_id,
-                            'error' => $e->getMessage()
-                        ]);
+                    if ($response->successful()) {
+                        $data->jobs = $response->json();
+                        $data->api_status = 1;
+                        $data->save();
+                    } else {
+                        throw new \Exception('Failed to fetch jobs: ' . $response->body());
                     }
-                    $data->api_status = 1;
-                    $data->save();
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'No snapshot data available for the Jobs entry or already processed.',
-                    ], 404);
                 }
 
             } catch (\Exception $e) {
