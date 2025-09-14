@@ -62,6 +62,7 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         // LinkedIn Profile AI routes
         Route::apiResource('linkedin-profile-ai', 'LinkedInProfileAiApiController');
         Route::post('linkedin-profile-ai/snapshot', 'LinkedInProfileAiApiController@snapshot');
+        Route::post('linkedin-profile-ai/analyze', 'LinkedInProfileAiApiController@analyzeProfile');
     });
 });
 
