@@ -309,27 +309,12 @@ class LinkedInProfileAiApiController extends Controller
     private function createAnalysisPrompt($profileData)
     {
         return "
-        Please analyze the following LinkedIn profile data and provide a comprehensive analysis report in JSON format.
-        The report should include:
+        You are to generate output strictly in JSON format.
+        Do not include explanations, line breaks, markdown, or any text outside of the JSON object.
+        Ensure the output is a single valid JSON object only.
 
-        1. **Profile Summary**: Key highlights and overview
-        2. **Strengths (Pros)**: What stands out positively
-        3. **Areas for Improvement (Cons)**: What could be enhanced
-        4. **Graphical Data Insights**: Suggestions for visual representation of data
-        5. **Experience Analysis**: Detailed breakdown of work experience
-        6. **Skills Assessment**: Analysis of listed skills and recommendations
-        7. **Education Evaluation**: Assessment of educational background
-        8. **Network Analysis**: Insights about connections and reach
-        9. **Activity Assessment**: Analysis of LinkedIn activity and engagement
-        10. **Improvement Recommendations**: Specific actionable suggestions
+        Analyze the following LinkedIn profile data and return the analysis strictly in this JSON schema:
 
-        LinkedIn Profile Data:
-        ```json
-        {$profileData}
-        ```
-
-        Please return the analysis as a well-structured JSON object with the following format:
-        ```json
         {
             \"profile_summary\": {
                 \"name\": \"string\",
@@ -428,9 +413,8 @@ class LinkedInProfileAiApiController extends Controller
                 \"data_quality\": \"string\"
             }
         }
-        ```
 
-        Ensure the response is valid JSON and provides actionable, specific insights based on the profile data.
+        LinkedIn Profile Data: {$profileData}
         ";
     }
 
