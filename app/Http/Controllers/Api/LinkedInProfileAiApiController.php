@@ -152,7 +152,7 @@ class LinkedInProfileAiApiController extends Controller
             ], 404);
         }
         if(!$linkedInProfileAi->profile) {
-            if($linkedInProfileAi->snapshot_id && $linkedInProfileAi->api_status != 1) {
+            if($linkedInProfileAi->snapshot_id) {
                 $snapshot_id = json_decode($linkedInProfileAi->snapshot_id, true)['snapshot_id'];
                 \Log::info('Retrieving LinkedIn snapshot', [
                     'user_id' => $linkedInProfileAi->user_id,
