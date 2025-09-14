@@ -173,7 +173,7 @@ class LinkedInProfileAiApiController extends Controller
         }
         if(!$linkedInProfileAi->profile) {
             if($linkedInProfileAi->snapshot_id && $linkedInProfileAi->api_status != 1) {
-                $snapshot_id = json_decode($linkedInProfileAi->snapshot_id, true)['snapshot_id'];
+                $snapshot_id = $linkedInProfileAi->snapshot_id['snapshot_id'];
                 try {
                     $snapshotUrl = "https://api.brightdata.com/datasets/v3/snapshot/{$snapshot_id}?format=json";
                     $headers = [
