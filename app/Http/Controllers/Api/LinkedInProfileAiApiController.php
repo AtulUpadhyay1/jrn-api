@@ -76,6 +76,13 @@ class LinkedInProfileAiApiController extends Controller
     {
         try {
             $user = auth()->user();
+            $user_detail = auth()->user()->userDetail;
+            if (! $user_detail || !$user_detail->linkedin) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User LinkedIn URL not found in user details',
+                ], 404);
+            }
             $brightDataUrl = 'https://api.brightdata.com/datasets/v3/trigger?dataset_id=gd_l1viktl72bvl7bjuj0&include_errors=true';
             $headers = [
                 'Authorization: Bearer 9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b',
@@ -118,7 +125,7 @@ class LinkedInProfileAiApiController extends Controller
                 // Log error but don't fail the main request
                 \Log::error('Failed to process LinkedIn profile', [
                     'user_id' => $user->id,
-                    'linkedin_url' => $request->linkedin,
+                    'linkedin_url' => $user_detail->linkedin,
                     'http_code' => $httpCode,
                     'response' => $response
                 ]);
@@ -127,7 +134,7 @@ class LinkedInProfileAiApiController extends Controller
             // Log error but don't fail the main request
             \Log::error('Exception while processing LinkedIn profile', [
                 'user_id' => $user->id,
-                'linkedin_url' => $request->linkedin,
+                'linkedin_url' => $user_detail->linkedin,
                 'error' => $e->getMessage()
             ]);
         }
