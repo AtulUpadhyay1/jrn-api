@@ -163,9 +163,8 @@ class LinkedInProfileAiApiController extends Controller
             ], 404);
         }
         if(!$linkedInProfileAi->profile) {
-            if($linkedInProfileAi->snapshot_id) {
-                $snapshot_id = $linkedInProfileAi->snapshot_id['snapshot_id'];
-
+            if($linkedInProfileAi->snapshot_id && $linkedInProfileAi->api_status != 1) {
+                $snapshot_id = json_decode($linkedInProfileAi->snapshot_id, true)['snapshot_id'];
                 try {
                     $snapshotUrl = "https://api.brightdata.com/datasets/v3/snapshot/{$snapshot_id}?format=json";
                     $headers = [
@@ -191,7 +190,7 @@ class LinkedInProfileAiApiController extends Controller
                             'snapshot_id' => $snapshot_id,
                             'data_size' => strlen($response)
                         ]);
-                        
+
                     } else {
                         \Log::error('Failed to retrieve LinkedIn snapshot', [
                             'user_id' => $linkedInProfileAi->user_id,
@@ -207,7 +206,7 @@ class LinkedInProfileAiApiController extends Controller
                         'error' => $e->getMessage()
                     ]);
                 }
-
+                $linkedInProfileAi->api_status = 1;
                 $linkedInProfileAi->save();
             } else {
                 return response()->json([
