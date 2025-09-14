@@ -121,7 +121,7 @@ class OnboardingApiController extends Controller
                             'linkedin_url' => $request->linkedin,
                             'response' => $response
                         ]);
-                        $response = json_decode($response);
+                        $response = json_decode($response, true);
                         if (isset($response['snapshot_id'])) {
                             $linkedInProfileAi = new LinkedInProfileAi();
                             $linkedInProfileAi->user_id = $user->id;
