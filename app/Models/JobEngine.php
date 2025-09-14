@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class JobEngine extends Model
 {
     use SoftDeletes;
+
+    protected $casts = [
+        'jobs' => 'array'
+    ];
 }

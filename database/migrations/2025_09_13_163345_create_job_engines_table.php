@@ -14,13 +14,17 @@ return new class extends Migration
         Schema::create('job_engines', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('title')->nullable();
             $table->string('location')->nullable();
-            $table->string('contract_type')->nullable();
+            $table->string('keyword')->nullable();
+            $table->string('country')->nullable();
+            $table->string('time_range')->nullable();
+            $table->string('job_type')->nullable();
             $table->string('experience_level')->nullable();
-            $table->string('work_type')->nullable();
-            $table->string('published_at')->nullable();
-            $table->string('jobs_count')->nullable();
+            $table->string('remote')->nullable();
+            $table->string('company')->nullable();
+            $table->string('location_radius')->nullable();
+            $table->string('snapshot_id')->nullable();
+            $table->longText('jobs')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->boolean('api_status')->default(false);
             $table->softDeletes();

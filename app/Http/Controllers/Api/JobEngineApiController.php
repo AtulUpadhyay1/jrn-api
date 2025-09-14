@@ -36,31 +36,46 @@ class JobEngineApiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'contract_type' => 'nullable|string|max:255',
+            'location' => 'required|string|max:255',
+            'keyword' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'time_range' => 'nullable|string|max:255',
+            'job_type' => 'nullable|string|max:255',
             'experience_level' => 'nullable|string|max:255',
-            'work_type' => 'nullable|string|max:255',
-            'published_at' => 'nullable|string|max:255',
-            'jobs_count' => 'nullable|string|max:255',
+            'remote' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'location_radius' => 'nullable|string|max:255',
         ]);
 
         try {
             $data = new JobEngine();
             $data->user_id = auth()->id();
-            $data->title = $request->title;
             $data->location = $request->location;
-            $data->contract_type = $request->contract_type;
+            $data->keyword = $request->keyword;
+            $data->country = $request->country;
+            $data->time_range = $request->time_range;
+            $data->job_type = $request->job_type;
             $data->experience_level = $request->experience_level;
-            $data->work_type = $request->work_type;
-            $data->published_at = $request->published_at;
-            $data->jobs_count = $request->jobs_count;
+            $data->remote = $request->remote;
+            $data->company = $request->company;
+            $data->location_radius = $request->location_radius;
+
             $data->save();
+
+            // Trigger job search after saving
+            $searchResult = $this->triggerJobSearch($data);
+
+            // Save search result in jobs column if successful
+            if ($searchResult['success'] && isset($searchResult['data'])) {
+                $data->jobs = $searchResult['data'];
+                $data->save();
+            }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Job Engine created successfully',
                 'data' => $data,
+                'search_result' => $searchResult,
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([
@@ -125,13 +140,15 @@ class JobEngineApiController extends Controller
     public function update(Request $request, string $id)
     {
         $this->validate($request, [
-            'title' => 'required|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'contract_type' => 'nullable|string|max:255',
+            'location' => 'required|string|max:255',
+            'keyword' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'time_range' => 'nullable|string|max:255',
+            'job_type' => 'nullable|string|max:255',
             'experience_level' => 'nullable|string|max:255',
-            'work_type' => 'nullable|string|max:255',
-            'published_at' => 'nullable|string|max:255',
-            'jobs_count' => 'nullable|string|max:255',
+            'remote' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'location_radius' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -142,13 +159,15 @@ class JobEngineApiController extends Controller
                     'message' => 'Job Engine entry not found',
                 ], 404);
             }
-            $data->title = $request->title;
             $data->location = $request->location;
-            $data->contract_type = $request->contract_type;
+            $data->keyword = $request->keyword;
+            $data->country = $request->country;
+            $data->time_range = $request->time_range;
+            $data->job_type = $request->job_type;
             $data->experience_level = $request->experience_level;
-            $data->work_type = $request->work_type;
-            $data->published_at = $request->published_at;
-            $data->jobs_count = $request->jobs_count;
+            $data->remote = $request->remote;
+            $data->company = $request->company;
+            $data->location_radius = $request->location_radius;
             $data->save();
 
             return response()->json([
@@ -189,6 +208,122 @@ class JobEngineApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while deleting experience',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Helper method to trigger job search for a single JobEngine record
+     */
+    private function triggerJobSearch(JobEngine $jobEngine)
+    {
+        try {
+            $brightDataToken = '9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b';
+            $brightDataUrl = 'https://api.brightdata.com/datasets/v3/trigger';
+
+            $queryParams = [
+                'dataset_id' => 'gd_lpfll7v5hcqtkxl6l',
+                'include_errors' => 'true',
+                'type' => 'discover_new',
+                'discover_by' => 'keyword'
+            ];
+
+            // Create search array from JobEngine data
+            $searches = [[
+                'location' => $jobEngine->location,
+                'keyword' => $jobEngine->keyword ?? '',
+                'country' => $jobEngine->country ?? '',
+                'time_range' => $jobEngine->time_range ?? '',
+                'job_type' => $jobEngine->job_type ?? '',
+                'experience_level' => $jobEngine->experience_level ?? '',
+                'remote' => $jobEngine->remote ?? '',
+                'company' => $jobEngine->company ?? '',
+                'location_radius' => $jobEngine->location_radius ?? '',
+            ]];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $brightDataToken,
+                'Content-Type' => 'application/json',
+            ])->post($brightDataUrl . '?' . http_build_query($queryParams), $searches);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => 'Job search triggered successfully',
+                    'data' => $response->json(),
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Failed to trigger job search',
+                    'error' => $response->body(),
+                ];
+            }
+
+        } catch (\Throwable $th) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred while searching jobs',
+                'error' => $th->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Search jobs using Bright Data API
+     */
+    public function searchJobs(Request $request)
+    {
+        $request->validate([
+            'searches' => 'required|array',
+            'searches.*.location' => 'required|string',
+            'searches.*.keyword' => 'required|string',
+            'searches.*.country' => 'nullable|string',
+            'searches.*.time_range' => 'nullable|string',
+            'searches.*.job_type' => 'nullable|string',
+            'searches.*.experience_level' => 'nullable|string',
+            'searches.*.remote' => 'nullable|string',
+            'searches.*.company' => 'nullable|string',
+            'searches.*.location_radius' => 'nullable|string',
+        ]);
+
+        try {
+            $brightDataToken = '9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b';
+            $brightDataUrl = 'https://api.brightdata.com/datasets/v3/trigger';
+
+            $queryParams = [
+                'dataset_id' => 'gd_lpfll7v5hcqtkxl6l',
+                'include_errors' => 'true',
+                'type' => 'discover_new',
+                'discover_by' => 'keyword'
+            ];
+
+            $searches = $request->input('searches');
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $brightDataToken,
+                'Content-Type' => 'application/json',
+            ])->post($brightDataUrl . '?' . http_build_query($queryParams), $searches);
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Job search triggered successfully',
+                    'data' => $response->json(),
+                ], 200);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to trigger job search',
+                    'error' => $response->body(),
+                ], $response->status());
+            }
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while searching jobs',
                 'error' => $th->getMessage(),
             ], 500);
         }

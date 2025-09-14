@@ -58,6 +58,7 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
 
         // Job Engine routes
         Route::apiResource('job-engine', 'JobEngineApiController');
+        Route::post('job-engine/search', 'JobEngineApiController@searchJobs');
 
         // LinkedIn Profile AI routes
         Route::apiResource('linkedin-profile-ai', 'LinkedInProfileAiApiController');
