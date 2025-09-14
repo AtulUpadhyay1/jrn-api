@@ -74,13 +74,12 @@ class JobEngineApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Job Engine created successfully',
-                'data' => $data,
-                'search_result' => $searchResult,
+                'data' => $data
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while creating experience',
+                'message' => 'An error occurred while creating Job Engine',
                 'error' => $th->getMessage(),
             ], 500);
         }
