@@ -231,6 +231,7 @@ class LinkedInProfileAiApiController extends Controller
     public function analyzeProfile(Request $request)
     {
         try {
+            $user = auth()->user();
             $linkedInProfileAi = LinkedInProfileAi::where('user_id', $user->id)->first();
             if (!$linkedInProfileAi || !$linkedInProfileAi->profile) {
                 return response()->json([
