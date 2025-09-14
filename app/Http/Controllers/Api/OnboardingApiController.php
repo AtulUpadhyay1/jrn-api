@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\LinkedInProfileAi;
+use App\Http\Controllers\Controller;
 
 class OnboardingApiController extends Controller
 {
@@ -87,12 +88,7 @@ class OnboardingApiController extends Controller
             }
             $user_detail->save();
 
-            if($user_detail->linkedin) {
-                // Make request to BrightData API for LinkedIn profile analysis
-                \Log::info('Starting LinkedIn profile processing', [
-                    'user_id' => $user->id,
-                    'linkedin_url' => $user_detail->linkedin
-                ]);
+            if($user_detail->linkedin != $request->linkedin) {
                 try {
                     $brightDataUrl = 'https://api.brightdata.com/datasets/v3/trigger?dataset_id=gd_l1viktl72bvl7bjuj0&include_errors=true';
                     $headers = [
@@ -124,6 +120,12 @@ class OnboardingApiController extends Controller
                             'linkedin_url' => $request->linkedin,
                             'response' => $response
                         ]);
+                        if (isset($response->snapshot_id)) {
+                            $linkedInProfileAi = new LinkedInProfileAi();
+                            $linkedInProfileAi->user_id = $user->id;
+                            $linkedInProfileAi->snapshot_id = $response->snapshot_id;
+                            $linkedInProfileAi->save();
+                        }
                     } else {
                         // Log error but don't fail the main request
                         \Log::error('Failed to process LinkedIn profile', [

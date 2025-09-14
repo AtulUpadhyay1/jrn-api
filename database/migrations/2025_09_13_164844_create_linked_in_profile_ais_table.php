@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->longText('profile')->nullable();
             $table->longText('ai_report')->nullable();
+            $table->string('snapshot_id')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->boolean('api_status')->default(false);
             $table->softDeletes();
