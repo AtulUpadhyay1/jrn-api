@@ -204,7 +204,7 @@ class LinkedInProfileAiApiController extends Controller
                         try {
                             $analysisReport = $this->generateProfileAnalysis($response);
                             $linkedInProfileAi->ai_report = json_encode($analysisReport);
-
+                            $linkedInProfileAi->status = 'active';
                             \Log::info('LinkedIn profile analysis completed automatically', [
                                 'user_id' => $linkedInProfileAi->user_id,
                                 'analysis_size' => strlen(json_encode($analysisReport))
