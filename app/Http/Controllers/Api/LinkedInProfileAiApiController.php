@@ -75,6 +75,7 @@ class LinkedInProfileAiApiController extends Controller
     public function show(string $id)
     {
         try {
+            $user = auth()->user();
             $brightDataUrl = 'https://api.brightdata.com/datasets/v3/trigger?dataset_id=gd_l1viktl72bvl7bjuj0&include_errors=true';
             $headers = [
                 'Authorization: Bearer 9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b',
