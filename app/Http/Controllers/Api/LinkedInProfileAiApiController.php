@@ -74,86 +74,7 @@ class LinkedInProfileAiApiController extends Controller
      */
     public function show(string $id)
     {
-        try {
-            $user = auth()->user();
-            $user_detail = auth()->user()->userDetail;
-            if (! $user_detail || !$user_detail->linkedin) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User LinkedIn URL not found in user details',
-                ], 404);
-            }
-            $brightDataUrl = 'https://api.brightdata.com/datasets/v3/trigger?dataset_id=gd_l1viktl72bvl7bjuj0&include_errors=true';
-            $headers = [
-                'Authorization: Bearer 9ba96b9f77407111cadaf9461b5a96fc84a79b3277e0cb260d3d2e02d16f289b',
-                'Content-Type: application/json'
-            ];
-            $data = [
-                [
-                    'url' => $user_detail->linkedin
-                ]
-            ];
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $brightDataUrl);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($response && $httpCode === 200) {
-                // Log successful LinkedIn profile processing
-                \Log::info('LinkedIn profile processed successfully', [
-                    'user_id' => $user->id,
-                    'linkedin_url' => $user_detail->linkedin,
-                    'response' => $response
-                ]);
-                $linkedInProfileAi = LinkedInProfileAi::where('user_id', $user->id)->first();
-                if (!$linkedInProfileAi) {
-                    $linkedInProfileAi = new LinkedInProfileAi();
-                }
-                $linkedInProfileAi->user_id = $user->id;
-                $linkedInProfileAi->snapshot_id = $response;
-                $linkedInProfileAi->save();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'LinkedIn Profile AI created successfully.',
-                ], 200);
-
-            } else {
-                // Log error but don't fail the main request
-                \Log::error('Failed to process LinkedIn profile', [
-                    'user_id' => $user->id,
-                    'linkedin_url' => $user_detail->linkedin,
-                    'http_code' => $httpCode,
-                    'response' => $response
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to trigger LinkedIn profile processing.',
-                    'error' => $e->getMessage(),
-                ], 500);
-            }
-        } catch (\Exception $e) {
-            // Log error but don't fail the main request
-            \Log::error('Exception while processing LinkedIn profile', [
-                'user_id' => $user->id,
-                'linkedin_url' => $user_detail->linkedin,
-                'error' => $e->getMessage()
-            ]);
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing LinkedIn profile.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        //
     }
 
     /**
@@ -310,11 +231,15 @@ class LinkedInProfileAiApiController extends Controller
     public function analyzeProfile(Request $request)
     {
         try {
-            $request->validate([
-                'profile_data' => 'required|string'
-            ]);
+            $linkedInProfileAi = LinkedInProfileAi::where('user_id', $user->id)->first();
+            if (!$linkedInProfileAi || !$linkedInProfileAi->profile) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No LinkedIn profile data found for analysis',
+                ], 404);
+            }
 
-            $profileData = $request->profile_data;
+            $profileData = $linkedInProfileAi->profile;
 
             // Create the analysis prompt
             $prompt = $this->createAnalysisPrompt($profileData);
