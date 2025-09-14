@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\JobEngine;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
 
 class JobEngineApiController extends Controller
 {
@@ -83,6 +84,28 @@ class JobEngineApiController extends Controller
                     'message' => 'Job Engine entry not found',
                 ], 404);
             }
+
+            try {
+                $webhookUrl = 'https://n8n.srv647881.hstgr.cloud/webhook/174f7bb1-7c76-4c85-a85a-a755ba973458';
+                $queryParams = [
+                    'contractType' => $data->contract_type,
+                    'experienceLevel' => $data->experience_level,
+                    'location' => $data->location,
+                    'title' => $data->title,
+                    'workType' => $data->work_type,
+                    'publishedAt' => $data->published_at,
+                    'rows' => '30'
+                ];
+
+                Http::get($webhookUrl, $queryParams);
+            } catch (\Exception $e) {
+                \Log::warning('Webhook call failed: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Webhook call failed: ' . $e->getMessage(),
+                ], 500);
+            }
+
             $data->status = 'active';
             $data->save();
             return response()->json([
@@ -96,9 +119,7 @@ class JobEngineApiController extends Controller
                 'error' => $th->getMessage(),
             ], 500);
         }
-    }
-
-    /**
+    }    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
