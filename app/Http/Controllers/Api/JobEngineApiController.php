@@ -105,7 +105,7 @@ class JobEngineApiController extends Controller
                     // Make API call to fetch job data
                     $response = Http::withHeaders([
                         'accept' => 'application/json'
-                    ])->get('https://anjanette-administrable-kenyetta.ngrok-free.app/jobs', [
+                    ])->get(env('JOB_SCRAPER_ENDPOINT') . '/jobs', [
                         'search_term' => $data->keyword,
                         'location' => $data->location,
                         'results_wanted' => 20,
