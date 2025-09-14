@@ -289,7 +289,7 @@ class LinkedInProfileAiApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'LinkedIn profile analysis completed successfully',
-                'data' => $analysisReport,
+                'data' => $linkedInProfileAi,
             ], 200);
 
         } catch (\Throwable $th) {
