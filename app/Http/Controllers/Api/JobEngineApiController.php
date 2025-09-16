@@ -145,7 +145,9 @@ class JobEngineApiController extends Controller
                 'error' => $th->getMessage(),
             ], 500);
         }
-    }    /**
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
