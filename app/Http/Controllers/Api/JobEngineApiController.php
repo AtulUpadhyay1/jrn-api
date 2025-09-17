@@ -103,6 +103,7 @@ class JobEngineApiController extends Controller
 
                 if($data->api_status != 1){
                     // Make API call to fetch job data
+                    \Log::info('Fetching jobs for JobEngine ID: ' . $data->id);
                     $response = Http::withHeaders([
                         'accept' => 'application/json'
                     ])->get(env('JOB_SCRAPER_ENDPOINT') . '/jobs', [
