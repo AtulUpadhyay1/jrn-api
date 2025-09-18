@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthApiController extends Controller
 {
+    /**
+     * Admin login.
+     */
     public function login(Request $request)
     {
         $request->validate([

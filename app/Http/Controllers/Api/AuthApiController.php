@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthApiController extends Controller
 {
+    /**
+     * User login.
+     */
+
     public function login(Request $request)
     {
         $request->validate([
@@ -62,6 +66,10 @@ class AuthApiController extends Controller
         }
     }
 
+    /**
+     * User registration.
+     */
+
     public function register(Request $request)
     {
         $request->validate([
@@ -109,6 +117,10 @@ class AuthApiController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Forgot password.
+     */
 
     public function forgotPassword(Request $request)
     {
