@@ -64,6 +64,10 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         Route::apiResource('linkedin-profile-ai', 'LinkedInProfileAiApiController');
         Route::post('linkedin-profile-ai/snapshot', 'LinkedInProfileAiApiController@snapshot');
         Route::post('linkedin-profile-ai/analyze', 'LinkedInProfileAiApiController@analyzeProfile');
+
+        // Role Play Category and Use Case routes
+        Route::get('role-play-categories', 'RolePlayApiController@category');
+        Route::get('role-play-use-cases', 'RolePlayApiController@useCases');
     });
 });
 
