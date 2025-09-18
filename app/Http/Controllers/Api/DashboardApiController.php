@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class DashboardApiController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * User Dashboard.
      */
 
     public function dashboard(Request $request)
