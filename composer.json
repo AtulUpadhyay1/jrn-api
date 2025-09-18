@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "openai-php/client": "^0.15.0",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/pdf-to-text": "^1.54"
     },
     "require-dev": {

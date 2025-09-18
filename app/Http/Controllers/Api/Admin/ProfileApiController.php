@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfileApiController extends Controller
 {
+    /**
+     * Admin profile.
+     */
     public function profile(Request $request)
     {
         try {
@@ -27,6 +30,10 @@ class ProfileApiController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Update Admin profile.
+     */
 
     public function update(Request $request)
     {

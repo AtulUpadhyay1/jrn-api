@@ -28,6 +28,10 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
         Route::get('profile', 'ProfileApiController@profile');
         Route::post('profile', 'ProfileApiController@update');
 
+        // QR Code routes
+        Route::get('profile/qr-code', 'ProfileApiController@getQrCode');
+        Route::post('profile/generate-qr-code', 'ProfileApiController@generateQrCode');
+
         // Education routes
         Route::apiResource('education', 'EducationApiController');
 
@@ -83,6 +87,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'App\Http\Controllers\Api\Admi
 
         // Profile routes
         Route::get('profile', 'ProfileApiController@profile');
+        Route::post('profile', 'ProfileApiController@update');
 
         // Role Play Category routes
         Route::apiResource('role-play-categories', 'RolePlayCategoryApiController');
