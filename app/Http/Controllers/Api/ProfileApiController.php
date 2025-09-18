@@ -30,6 +30,7 @@ class ProfileApiController extends Controller
                     'last_name' => $user->last_name,
                     'email' => $user->email,
                 ],
+                'qr_code'     => $user->qr_code ? asset('storage/' . $user->qr_code) : null,
                 'user_detail' => $user->userDetail,
             ], 200);
 
