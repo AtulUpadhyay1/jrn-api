@@ -17,6 +17,9 @@ Route::group(['namespace' => 'App\Http\Controllers\Api'], function () {
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
 
+        // Dashboard routes
+        Route::get('dashboard', 'DashboardApiController@dashboard');
+
         // Onboarding routes
         Route::get('/onboarding', 'OnboardingApiController@index');
         Route::post('/onboarding', 'OnboardingApiController@save');
