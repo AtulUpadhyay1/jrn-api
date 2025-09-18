@@ -89,6 +89,9 @@ Route::group(['prefix' => 'admin', 'namespace' => 'App\Http\Controllers\Api\Admi
         Route::get('profile', 'ProfileApiController@profile');
         Route::post('profile', 'ProfileApiController@update');
 
+        // User Management routes
+        Route::apiResource('users', 'UserApiController');
+
         // Role Play Category routes
         Route::apiResource('role-play-categories', 'RolePlayCategoryApiController');
 
